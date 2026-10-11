@@ -1,0 +1,68 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    environment:
+      PORT: 4000
+      ORDER_SERVICE_URL: http://order-service:4001
+    ports:
+      - "4000:4000"
+    depends_on:
+      - order-service
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    environment:
+      PORT: 4001
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  payment-service:
+    build: ./payment-service
+    container_name: payment-service
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  inventory-service:
+    build: ./inventory-service
+    container_name: inventory-service
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy

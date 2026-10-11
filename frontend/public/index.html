@@ -1,0 +1,939 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f8ff">
+  <title>FlowOrder | Order Management</title>
+
+  <style>
+    :root {
+      --primary: #5145e8;
+      --primary-dark: #3e35c5;
+      --navy: #172b55;
+      --muted: #7082a5;
+      --border: #e4ebf7;
+      --background: #f5f8fe;
+      --green: #079b78;
+      --green-bg: #e8faf4;
+      --blue-bg: #edf4ff;
+      --shadow: 0 8px 28px rgba(35, 65, 120, .055);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      background: var(--background);
+      color: var(--navy);
+      font-size: 14px;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    .topbar {
+      background: rgba(255,255,255,.96);
+      border-bottom: 1px solid var(--border);
+      padding: 17px 5.5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -.6px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      background: var(--blue-bg);
+      color: var(--primary);
+      border-radius: 12px;
+      font-size: 23px;
+    }
+
+    .brand-tag {
+      font-size: 10px;
+      letter-spacing: .7px;
+      font-weight: 800;
+      color: var(--primary);
+      background: #f0efff;
+      padding: 7px 10px;
+      border-radius: 20px;
+    }
+
+    .system-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--green);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 4px #e5f8f0;
+    }
+
+    .container {
+      width: min(1240px, 89%);
+      margin: 35px auto 24px;
+    }
+
+    .page-heading {
+      margin-bottom: 27px;
+    }
+
+    .page-heading h1 {
+      font-size: clamp(27px, 3vw, 36px);
+      margin: 0 0 8px;
+      letter-spacing: -.9px;
+    }
+
+    .page-heading p {
+      color: var(--muted);
+      font-size: 15px;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 25px;
+      min-width: 0;
+    }
+
+    .card-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 23px;
+    }
+
+    .heading-icon {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      border-radius: 12px;
+      background: #f0f2ff;
+      border: 1px solid #e3e6ff;
+      color: var(--primary);
+      font-size: 20px;
+    }
+
+    .card-heading h2 {
+      font-size: 18px;
+      margin: 0;
+      letter-spacing: -.3px;
+    }
+
+    .card-heading p {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 5px 0 0;
+    }
+
+    .field {
+      margin-bottom: 17px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .field input {
+      width: 100%;
+      border: 1px solid #d7e1f2;
+      border-radius: 10px;
+      padding: 13px 14px;
+      outline: none;
+      background: #fff;
+      color: var(--navy);
+      transition: border .2s, box-shadow .2s;
+    }
+
+    .field input::placeholder {
+      color: #9aa8bf;
+    }
+
+    .field input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px #5145e81c;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .quantity-control input {
+      text-align: center;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .quantity-control button {
+      width: 43px;
+      flex-shrink: 0;
+      border: 1px solid #d7e1f2;
+      border-radius: 10px;
+      background: #f8faff;
+      color: var(--primary);
+      font-size: 21px;
+      cursor: pointer;
+    }
+
+    .quantity-control button:hover {
+      background: var(--blue-bg);
+    }
+
+    .primary-button {
+      width: 100%;
+      padding: 14px 18px;
+      border: 0;
+      border-radius: 10px;
+      background: linear-gradient(110deg, #5145e8, #6558f4);
+      color: white;
+      font-weight: 750;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 5px 12px #5145e81c;
+      transition: transform .2s, opacity .2s;
+    }
+
+    .primary-button:hover {
+      transform: translateY(-1px);
+      background: var(--primary-dark);
+    }
+
+    .primary-button:disabled {
+      opacity: .65;
+      cursor: wait;
+      transform: none;
+    }
+
+    .form-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin: 12px 0 0;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* Event pipeline */
+
+    .pipeline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 7px;
+      padding-top: 14px;
+    }
+
+    .pipeline-step {
+      flex: 1;
+      min-width: 0;
+      text-align: center;
+    }
+
+    .pipeline-icon {
+      width: 61px;
+      height: 61px;
+      margin: 0 auto 10px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #e2eaff;
+      border-radius: 17px;
+      background: linear-gradient(145deg, #f2f6ff, #fafbff);
+      color: var(--primary);
+      font-size: 25px;
+      font-weight: 700;
+    }
+
+    .pipeline-step.broker .pipeline-icon {
+      color: #e77b18;
+    }
+
+    .pipeline-name {
+      font-size: 11px;
+      line-height: 1.45;
+      font-weight: 750;
+      min-height: 32px;
+      overflow-wrap: anywhere;
+    }
+
+    .pipeline-status {
+      display: inline-block;
+      margin-top: 9px;
+      padding: 6px 8px;
+      border-radius: 20px;
+      background: #f0f3fa;
+      color: #657693;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pipeline-status.ready {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .pipeline-arrow {
+      color: #6a64ed;
+      font-size: 20px;
+      padding-top: 17px;
+      flex-shrink: 0;
+    }
+
+    .pipeline-note {
+      margin: 24px 0 0;
+      border-top: 1px solid #edf1f8;
+      padding-top: 15px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    /* Order result */
+
+    .summary-card {
+      margin-top: 18px;
+      scroll-margin-top: 20px;
+    }
+
+    .summary-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 23px;
+    }
+
+    .summary-heading .card-heading {
+      margin: 0;
+      flex: 1;
+    }
+
+    .result-badge {
+      border-radius: 30px;
+      padding: 8px 12px;
+      background: var(--green-bg);
+      color: var(--green);
+      font-weight: 750;
+      font-size: 11px;
+    }
+
+    .summary-placeholder {
+      padding: 24px;
+      background: #f8faff;
+      border: 1px dashed #dce5f5;
+      border-radius: 12px;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .summary-placeholder .placeholder-icon {
+      font-size: 26px;
+      margin-bottom: 8px;
+    }
+
+    .summary-placeholder strong {
+      display: block;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+
+    .summary-content {
+      display: none;
+      grid-template-columns: .85fr 1.15fr;
+      gap: 26px;
+    }
+
+    .details-list {
+      display: grid;
+      grid-template-columns: 100px minmax(0,1fr);
+      gap: 16px 12px;
+      align-content: start;
+    }
+
+    .detail-label {
+      color: var(--muted);
+    }
+
+    .detail-value {
+      color: var(--navy);
+      font-weight: 650;
+      overflow-wrap: anywhere;
+    }
+
+    .summary-right {
+      border-left: 1px solid var(--border);
+      padding-left: 26px;
+      min-width: 0;
+    }
+
+    .created-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+
+    .created-row .detail-label {
+      margin-right: 5px;
+    }
+
+    .success-message {
+      background: #f0fbf7;
+      border: 1px solid #c9f0e4;
+      border-radius: 11px;
+      padding: 15px;
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      color: #17634f;
+      line-height: 1.7;
+    }
+
+    .success-message.error {
+      background: #fff4f4;
+      border-color: #ffd5d5;
+      color: #a52b35;
+    }
+
+    .message-icon {
+      flex-shrink: 0;
+      font-size: 17px;
+    }
+
+    .event-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 750;
+      margin: 17px 0 9px;
+    }
+
+    .event-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .event-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 11px;
+      border-radius: 30px;
+      background: var(--blue-bg);
+      color: #285fc2;
+      border: 1px solid #d9e7ff;
+      font-size: 11px;
+      font-weight: 750;
+    }
+
+    .event-tag.payment {
+      background: #f3efff;
+      color: #6941d9;
+      border-color: #e3d9ff;
+    }
+
+    .event-tag.muted {
+      background: #f6f8fc;
+      color: #75839b;
+      border-color: #e7ecf4;
+    }
+
+    .footer {
+      padding: 24px 10px 12px;
+      text-align: center;
+      color: #7d8eab;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .footer strong {
+      color: #586d91;
+    }
+
+    @media (max-width: 850px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-content {
+        grid-template-columns: 1fr;
+        gap: 23px;
+      }
+
+      .summary-right {
+        border-left: 0;
+        border-top: 1px solid var(--border);
+        padding: 22px 0 0;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .topbar {
+        padding: 14px 5%;
+      }
+
+      .brand {
+        font-size: 19px;
+        gap: 7px;
+      }
+
+      .brand-tag {
+        display: none;
+      }
+
+      .system-status {
+        font-size: 10px;
+      }
+
+      .container {
+        width: 92%;
+        margin-top: 25px;
+      }
+
+      .card {
+        padding: 19px;
+      }
+
+      .pipeline {
+        gap: 3px;
+      }
+
+      .pipeline-icon {
+        width: 43px;
+        height: 43px;
+        border-radius: 12px;
+        font-size: 19px;
+      }
+
+      .pipeline-arrow {
+        font-size: 14px;
+        padding-top: 12px;
+      }
+
+      .pipeline-name {
+        font-size: 9px;
+      }
+
+      .pipeline-status {
+        font-size: 9px;
+        padding: 5px 6px;
+      }
+
+      .details-list {
+        grid-template-columns: 85px minmax(0,1fr);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">⌘</div>
+      <span>FlowOrder</span>
+      <span class="brand-tag">MICROSERVICES DEMO</span>
+    </div>
+
+    <div class="system-status">
+      <span class="status-dot"></span>
+      <span>Order interface ready</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="page-heading">
+      <h1>Order management</h1>
+      <p>Submit an order and observe how an event-driven system handles the request.</p>
+    </section>
+
+    <div class="main-grid">
+      <section class="card">
+        <div class="card-heading">
+          <div class="heading-icon" aria-hidden="true">🛒</div>
+          <div>
+            <h2>Create an order</h2>
+            <p>Enter the details below to submit a new order.</p>
+          </div>
+        </div>
+
+        <form id="orderForm">
+          <div class="field">
+            <label for="customer">Customer name</label>
+            <input
+              id="customer"
+              name="customer"
+              type="text"
+              maxlength="100"
+              placeholder="e.g. Alex Santos"
+              autocomplete="name"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="item">Item or product</label>
+            <input
+              id="item"
+              name="item"
+              type="text"
+              maxlength="100"
+              placeholder="e.g. Water refill"
+              required
+            >
+          </div>
+
+          <div class="field">
+            <label for="quantity">Quantity</label>
+            <div class="quantity-control">
+              <button type="button" id="minusBtn" aria-label="Decrease quantity">−</button>
+              <input
+                id="quantity"
+                name="quantity"
+                type="number"
+                min="1"
+                max="999"
+                value="1"
+                required
+              >
+              <button type="button" id="plusBtn" aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+
+          <button class="primary-button" id="submitBtn" type="submit">
+            ➤ &nbsp; Submit order
+          </button>
+
+          <p class="form-note">
+            Demo environment · Order events are handled by the connected services.
+          </p>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="card-heading">
+          <div class="heading-icon" aria-hidden="true">⌘</div>
+          <div>
+            <h2>Event pipeline</h2>
+            <p>How the system components communicate.</p>
+          </div>
+        </div>
+
+        <div class="pipeline">
+          <div class="pipeline-step">
+            <div class="pipeline-icon">⬡</div>
+            <div class="pipeline-name">API Gateway</div>
+            <span class="pipeline-status ready">Entry point</span>
+          </div>
+
+          <div class="pipeline-arrow" aria-hidden="true">→</div>
+
+          <div class="pipeline-step">
+            <div class="pipeline-icon">⚙</div>
+            <div class="pipeline-name">Order Service</div>
+            <span class="pipeline-status">Processing</span>
+          </div>
+
+          <div class="pipeline-arrow" aria-hidden="true">→</div>
+
+          <div class="pipeline-step broker">
+            <div class="pipeline-icon">▰</div>
+            <div class="pipeline-name">RabbitMQ</div>
+            <span class="pipeline-status ready">Routing</span>
+          </div>
+
+          <div class="pipeline-arrow" aria-hidden="true">→</div>
+
+          <div class="pipeline-step">
+            <div class="pipeline-icon">▤</div>
+            <div class="pipeline-name">Payment &amp; Inventory</div>
+            <span class="pipeline-status">Consumers</span>
+          </div>
+
+          <div class="pipeline-arrow" aria-hidden="true">→</div>
+
+          <div class="pipeline-step">
+            <div class="pipeline-icon">♧</div>
+            <div class="pipeline-name">Notification</div>
+            <span class="pipeline-status">Consumer</span>
+          </div>
+        </div>
+
+        <p class="pipeline-note">
+          <strong>Event-driven processing</strong><br>
+          The Order Service publishes <code>order.placed</code>. RabbitMQ routes
+          events to the queues configured for the relevant services. A successful
+          payment can generate the <code>payment.success</code> event.
+        </p>
+      </section>
+    </div>
+
+    <section class="card summary-card" id="summaryCard" aria-live="polite">
+      <div class="summary-heading">
+        <div class="card-heading">
+          <div class="heading-icon" id="summaryIcon" aria-hidden="true">✓</div>
+          <div>
+            <h2 id="summaryTitle">Order summary</h2>
+            <p id="summarySubtitle">Your latest submission will appear here.</p>
+          </div>
+        </div>
+        <span class="result-badge" id="resultBadge">Awaiting submission</span>
+      </div>
+
+      <div class="summary-placeholder" id="placeholder">
+        <div class="placeholder-icon">▤</div>
+        <strong>No order submitted yet</strong>
+        Complete the form above and select Submit order to view the confirmation.
+      </div>
+
+      <div class="summary-content" id="summaryContent">
+        <div class="details-list">
+          <span class="detail-label">Order ID</span>
+          <span class="detail-value" id="orderId">—</span>
+
+          <span class="detail-label">Customer</span>
+          <span class="detail-value" id="summaryCustomer">—</span>
+
+          <span class="detail-label">Item</span>
+          <span class="detail-value" id="summaryItem">—</span>
+
+          <span class="detail-label">Quantity</span>
+          <span class="detail-value" id="summaryQuantity">—</span>
+        </div>
+
+        <div class="summary-right">
+          <div class="created-row">
+            <span class="detail-label">Created at</span>
+            <strong id="createdAt">—</strong>
+          </div>
+
+          <div class="success-message" id="resultMessage">
+            <span class="message-icon" id="messageIcon">✓</span>
+            <div id="messageText">Order response will appear here.</div>
+          </div>
+
+          <div class="event-label">EVENT STATUS</div>
+          <div class="event-tags" id="eventTags">
+            <span class="event-tag muted">Awaiting order submission</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <strong>FlowOrder</strong> · PL4107 System Integration and Architecture 2<br>
+      Proof of Concept · Event-Driven Microservices Architecture<br>
+      <span>Demonstration only. No real payment is processed.</span>
+    </footer>
+  </main>
+
+  <script>
+    const form = document.getElementById("orderForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const quantityInput = document.getElementById("quantity");
+
+    const placeholder = document.getElementById("placeholder");
+    const summaryContent = document.getElementById("summaryContent");
+    const resultBadge = document.getElementById("resultBadge");
+    const resultMessage = document.getElementById("resultMessage");
+
+    document.getElementById("minusBtn").addEventListener("click", () => {
+      const current = Number(quantityInput.value) || 1;
+      quantityInput.value = Math.max(1, current - 1);
+    });
+
+    document.getElementById("plusBtn").addEventListener("click", () => {
+      const current = Number(quantityInput.value) || 1;
+      quantityInput.value = Math.min(999, current + 1);
+    });
+
+    function setText(id, value) {
+      document.getElementById(id).textContent =
+        value === undefined || value === null || value === ""
+          ? "—"
+          : String(value);
+    }
+
+    function showError(message) {
+      placeholder.style.display = "none";
+      summaryContent.style.display = "grid";
+
+      setText("summaryTitle", "Order submission");
+      setText("summarySubtitle", "The request could not be completed.");
+      setText("resultBadge", "Submission failed");
+
+      resultBadge.style.background = "#fff0f0";
+      resultBadge.style.color = "#b42332";
+      resultMessage.classList.add("error");
+
+      setText("messageIcon", "!");
+      setText("messageText", message);
+
+      document.getElementById("eventTags").replaceChildren();
+
+      const tag = document.createElement("span");
+      tag.className = "event-tag muted";
+      tag.textContent = "No successful confirmation";
+      document.getElementById("eventTags").appendChild(tag);
+
+      document.getElementById("summaryCard").scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const customer = document.getElementById("customer").value.trim();
+      const item = document.getElementById("item").value.trim();
+      const quantity = Number(quantityInput.value);
+
+      if (!customer || !item || !Number.isInteger(quantity) ||
+          quantity < 1 || quantity > 999) {
+        showError("Please provide a valid customer name, item, and quantity.");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Submitting order…";
+
+      try {
+        const response = await fetch("/api/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ customer, item, quantity })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(data.error || data.message ||
+            `The server returned HTTP ${response.status}.`);
+        }
+
+        const order = data.order || {};
+        const acceptedCustomer = order.customer ?? customer;
+        const acceptedItem = order.item ?? item;
+        const acceptedQuantity = order.quantity ?? quantity;
+        const id = order.orderId ?? order.id ?? "Accepted";
+        const timestamp = order.createdAt
+          ? new Date(order.createdAt)
+          : new Date();
+
+        placeholder.style.display = "none";
+        summaryContent.style.display = "grid";
+
+        setText("summaryTitle", "Order confirmation");
+        setText("summarySubtitle", "Your order has been received by the system.");
+        setText("resultBadge", "✓ Order accepted");
+
+        resultBadge.style.background = "#e8faf4";
+        resultBadge.style.color = "#079b78";
+        resultMessage.classList.remove("error");
+
+        setText("messageIcon", "✓");
+        setText(
+          "messageText",
+          data.message ||
+          "The order request was accepted by the Order Service."
+        );
+
+        setText("orderId", id);
+        setText("summaryCustomer", acceptedCustomer);
+        setText("summaryItem", acceptedItem);
+        setText("summaryQuantity", acceptedQuantity);
+
+        setText(
+          "createdAt",
+          Number.isNaN(timestamp.getTime())
+            ? String(order.createdAt)
+            : timestamp.toLocaleString()
+        );
+
+        const eventTags = document.getElementById("eventTags");
+        eventTags.replaceChildren();
+
+        const eventTag = document.createElement("span");
+        eventTag.className = "event-tag";
+        eventTag.textContent = "↗  order.placed";
+        eventTags.appendChild(eventTag);
+
+        const note = document.createElement("p");
+        note.style.cssText =
+          "margin:12px 0 0;color:#7082a5;font-size:11px;line-height:1.7";
+        note.textContent =
+          "Downstream payment, inventory, and notification processing " +
+          "is handled asynchronously by the connected services.";
+        eventTags.appendChild(note);
+
+        document.getElementById("summaryCard").scrollIntoView({
+          behavior: "smooth",
+          block: "nearest"
+        });
+
+      } catch (error) {
+        showError(
+          error.message ||
+          "Unable to submit the order. Check the application services and try again."
+        );
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "➤ &nbsp; Submit order";
+      }
+    });
+  </script>
+</body>
+</html>
